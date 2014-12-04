@@ -1,9 +1,6 @@
-% testing function
+%clc
 clear all
-clc
 close all
-
-
 
 load SubSetNormalizedFeaturesSet2.mat
 y=SubSetNormalizedFeaturesSet2;
@@ -13,56 +10,49 @@ class1=y(1:7660,1:16);
 class2=y(7660:7660*2,1:16);
 class3=y(7660*2:7660*3,1:16);
 
-percentage_training=70;
-percentage_testing=30;
-[train_samples_class1 test_samples_class1]=selectSamples(class1,percentage_training,percentage_testing);
+%Set number of times to re-randomize and calculate confusion matrix and
+% average. Beware large values can take a long time to compute.
+numIterations=2; 
 
-percentage_training=70;
-percentage_testing=30;
-[train_samples_class2 test_samples_class2]=selectSamples(class2,percentage_training,percentage_testing);
+%Specify amount of training data/search space
+percentage_training=90;
+%Specify amount of validation data
+percentage_validation=10;
+%Specify number of hidden layers
+num_layers=5;
 
+%Switch on the profiler for timing information
+%profile on
+% Plug a feature vector from class 1
+label=nn_classify_highlevel(num_layers,percentage_training,percentage_validation,class1(200,1:16)) % Should give 1 when we plug the 200th observation of class 1
 
-percentage_training=70;
-percentage_testing=30;
-[train_samples_class3 test_samples_class3]=selectSamples(class3,percentage_training,percentage_testing);
-
-
-% Note that feature 1 is in the columns,feature 16 is in the columns 
-
-cTrain1=[train_samples_class1 ones(length(train_samples_class1),1)];
-cTrain2=[train_samples_class2 2*ones(length(train_samples_class2),1)];
-cTrain3=[train_samples_class3 3*ones(length(train_samples_class3),1)];
-
-trainFeatures=[cTrain1;cTrain2;cTrain3];
-
-inputs=transpose(trainFeatures(:,1:16));
-targets=transpose(trainFeatures(:,17));
-
-% Create a Pattern Recognition Network
-hiddenLayerSize = 10;
-net = patternnet(hiddenLayerSize);
-
-
-% Set up Division of Data for Training, Validation, Testing
-net.divideParam.trainRatio = 70/100;
-net.divideParam.valRatio = 15/100;
-net.divideParam.testRatio = 15/100;
-
-
-% Train the Network
-[net,tr] = train(net,inputs,targets);
-
-% Test the Network
-outputs = net(inputs);
-
-actual=transpose(targets);
-predicted=transpose(round(outputs));
-
-confusionMatrix=confusionmat(predicted,actual);
-normalMat=(1/length(cTrain1))*confusionMatrix;
-
-% normalMat =
+% % Plug a feature vector from class 2
+% label=nn_classify_highlevel(num_layers,percentage_training,percentage_validation,class2(200,1:16))  % Should give 2 when we plug the 200th observation of class 2
 % 
-%     0.9884    0.0011    0.0065
-%     0.0097    0.9631    0.2007
-%     0.0019    0.0360    0.7930
+% % Plug a feature vector from class 3
+% label=nn_classify_highlevel(num_layers,percentage_training,percentage_validation,class3(200,1:16))  % Should give 3 when we plug the 200th observation of class 3
+
+% Check profiler for timing information of the function
+% profile viewer
+% p = profile('info');
+% profsave(p,'profile_results')
+% profile off
+%%
+
+%% Calculate average confusion matrix.For a quick test set numIterations=2 and num_Layers=5 
+clc
+clear all
+close all
+%Set number of times to re-randomize and calculate confusion matrix and
+% average. Beware large values can take a long time to compute.
+numIterations=1; 
+
+%Specify amount of training data/search space
+percentage_training=70;
+%Specify amount of validation data
+percentage_validation=15;
+%Specify number of hidden layers
+num_layers=5;
+
+avgConfusion = statisticalAvgConfusionMatrix(numIterations,num_layers,percentage_training,percentage_validation)
+

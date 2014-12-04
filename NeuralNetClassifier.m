@@ -1,4 +1,4 @@
-
+% This is a neural network created to classifying the data I created.
 % inputs  = [0 1 0 1; 0 0 1 1]; % feature vector as a column [1;2]
 % targets = [0 1 1 0]; % Two classes .Class per column [road babble babble road]
 % 
